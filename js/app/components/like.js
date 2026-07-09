@@ -17,6 +17,14 @@ export const like = (() => {
     let listeners = null;
 
     /**
+     * @returns {boolean}
+     */
+    const isGoogleSheets = () => {
+        const url = document.body.getAttribute('data-url');
+        return !!url && url.includes('script.google.com');
+    };
+
+    /**
      * @param {HTMLButtonElement} button
      * @returns {Promise<void>}
      */
@@ -32,6 +40,41 @@ export const like = (() => {
 
         if (navigator.vibrate) {
             navigator.vibrate(100);
+        }
+
+        if (isGoogleSheets()) {
+            const url = document.body.getAttribute('data-url');
+            const alreadyLiked = likes.has(id);
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'like',
+                        uuid: id,
+                        like: !alreadyLiked
+                    })
+                });
+                const resJson = await res.json();
+                if (resJson.code === 200) {
+                    if (alreadyLiked) {
+                        likes.unset(id);
+                        heart.classList.remove('fa-solid', 'text-danger');
+                        heart.classList.add('fa-regular');
+                        info.setAttribute('data-count-like', String(count - 1));
+                    } else {
+                        likes.set(id, resJson.data.uuid);
+                        heart.classList.remove('fa-regular');
+                        heart.classList.add('fa-solid', 'text-danger');
+                        info.setAttribute('data-count-like', String(count + 1));
+                    }
+                }
+            } catch (err) {
+                console.error("Error liking comment in Google Sheets", err);
+            } finally {
+                info.innerText = info.getAttribute('data-count-like');
+                button.disabled = false;
+            }
+            return;
         }
 
         if (likes.has(id)) {

@@ -32,6 +32,14 @@ export const comment = (() => {
     const lastRender = [];
 
     /**
+     * @returns {boolean}
+     */
+    const isGoogleSheets = () => {
+        const url = document.body.getAttribute('data-url');
+        return !!url && url.includes('script.google.com');
+    };
+
+    /**
      * @returns {string}
      */
     const onNullComment = () => {
@@ -202,6 +210,57 @@ export const comment = (() => {
         if (comments.getAttribute('data-loading') === 'false') {
             comments.setAttribute('data-loading', 'true');
             comments.innerHTML = card.renderLoading().repeat(pagination.getPer());
+        }
+
+        if (isGoogleSheets()) {
+            const url = document.body.getAttribute('data-url');
+            return fetch(url)
+                .then(res => res.json())
+                .then(async (res) => {
+                    comments.setAttribute('data-loading', 'false');
+
+                    for (const u of lastRender) {
+                        await gif.remove(u);
+                    }
+
+                    const lists = res.data.lists || [];
+                    const start = pagination.getNext();
+                    const end = start + pagination.getPer();
+                    const slicedLists = lists.slice(start, end);
+
+                    if (slicedLists.length === 0) {
+                        comments.innerHTML = onNullComment();
+                        pagination.setTotal(lists.length);
+                        comments.dispatchEvent(new Event('undangan.comment.done'));
+                        return res;
+                    }
+
+                    const flatten = (ii) => ii.flatMap((i) => [i.uuid, ...flatten(i.comments)]);
+                    lastRender.splice(0, lastRender.length, ...flatten(slicedLists));
+                    showHide.set('hidden', traverse(slicedLists, showHide.get('hidden')));
+
+                    let data = await card.renderContentMany(slicedLists);
+                    if (slicedLists.length < pagination.getPer()) {
+                        data += onNullComment();
+                    }
+
+                    util.safeInnerHTML(comments, data);
+
+                    lastRender.forEach((u) => {
+                        like.addListener(u);
+                    });
+
+                    comments.dispatchEvent(new Event('undangan.comment.result'));
+                    pagination.setTotal(lists.length);
+                    comments.dispatchEvent(new Event('undangan.comment.done'));
+                    return res;
+                })
+                .catch((err) => {
+                    console.error("Error fetching comments from Google Sheets", err);
+                    comments.setAttribute('data-loading', 'false');
+                    comments.innerHTML = onNullComment();
+                    comments.dispatchEvent(new Event('undangan.comment.done'));
+                });
         }
 
         return request(HTTP_GET, `/api/v2/comment?per=${pagination.getPer()}&next=${pagination.getNext()}&lang=${lang.getLanguage()}`)
@@ -489,10 +548,39 @@ export const comment = (() => {
             }
         }
 
-        const response = await request(HTTP_POST, `/api/comment?lang=${lang.getLanguage()}`)
-            .token(session.getToken())
-            .body(dto.postCommentRequest(id, nameValue, isPresence, gifIsOpen ? null : form.value, gifId))
-            .send(dto.getCommentResponse);
+        let response;
+        if (isGoogleSheets()) {
+            try {
+                const url = document.body.getAttribute('data-url');
+                const res = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'add',
+                        id: id,
+                        name: nameValue,
+                        presence: isPresence,
+                        comment: gifIsOpen ? null : form.value,
+                        gif_id: gifId
+                    })
+                });
+                const resJson = await res.json();
+                response = {
+                    code: resJson.code,
+                    data: {
+                        ...resJson.data,
+                        own: resJson.data.own || resJson.data.uuid
+                    }
+                };
+            } catch (err) {
+                console.error("Error posting comment to Google Sheets", err);
+                response = { code: 500 };
+            }
+        } else {
+            response = await request(HTTP_POST, `/api/comment?lang=${lang.getLanguage()}`)
+                .token(session.getToken())
+                .body(dto.postCommentRequest(id, nameValue, isPresence, gifIsOpen ? null : form.value, gifId))
+                .send(dto.getCommentResponse);
+        }
 
         if (name) {
             name.disabled = false;

@@ -360,7 +360,15 @@ export const guest = (() => {
                 img.load();
             }
 
-            session.guest(params.get('k') ?? token).then(({ data }) => {
+            const isGoogleSheets = document.body.getAttribute('data-url').includes('script.google.com') || token === 'googlesheets';
+
+            if (isGoogleSheets) {
+                const configStorage = storage('config');
+                configStorage.set('can_reply', true);
+                configStorage.set('can_edit', false);
+                configStorage.set('can_delete', false);
+                configStorage.set('tenor_key', '');
+
                 document.dispatchEvent(new Event('undangan.session'));
                 progress.complete('config');
 
@@ -370,13 +378,30 @@ export const guest = (() => {
 
                 vid.load();
                 aud.load();
-                lib.load({ confetti: data.is_confetti_animation });
+                lib.load({ confetti: document.body.getAttribute('data-confetti') === 'true' });
 
                 comment.show()
                     .then(() => progress.complete('comment'))
                     .catch(() => progress.invalid('comment'));
+            } else {
+                session.guest(params.get('k') ?? token).then(({ data }) => {
+                    document.dispatchEvent(new Event('undangan.session'));
+                    progress.complete('config');
 
-            }).catch(() => progress.invalid('config'));
+                    if (img.hasDataSrc()) {
+                        img.load();
+                    }
+
+                    vid.load();
+                    aud.load();
+                    lib.load({ confetti: data.is_confetti_animation });
+
+                    comment.show()
+                        .then(() => progress.complete('comment'))
+                        .catch(() => progress.invalid('comment'));
+
+                }).catch(() => progress.invalid('config'));
+            }
         }
     };
 
