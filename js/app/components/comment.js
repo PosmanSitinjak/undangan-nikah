@@ -223,7 +223,7 @@ export const comment = (() => {
                         await gif.remove(u);
                     }
 
-                    const lists = res.data.lists || [];
+                    const lists = (res.data.lists || []).filter(c => c.uuid && c.name && String(c.uuid).trim().length > 0 && String(c.name).trim().length > 0);
                     const start = pagination.getNext();
                     const end = start + pagination.getPer();
                     const slicedLists = lists.slice(start, end);
