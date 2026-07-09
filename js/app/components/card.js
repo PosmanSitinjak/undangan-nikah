@@ -1,5 +1,6 @@
 import { gif } from './gif.js';
 import { util } from '../../common/util.js';
+import { lang } from '../../common/language.js';
 import { storage } from '../../common/storage.js';
 import { session } from '../../common/session.js';
 
@@ -26,6 +27,46 @@ export const card = (() => {
     let showHide = null;
 
     const maxCommentLength = 300;
+
+    /**
+     * @param {string} dateString
+     * @returns {string}
+     */
+    const formatTime = (dateString) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return dateString;
+            }
+
+            const now = new Date();
+            const diffMs = now - date;
+            const diffSeconds = Math.floor(diffMs / 1000);
+            const diffMinutes = Math.floor(diffSeconds / 60);
+            const diffHours = Math.floor(diffMinutes / 60);
+            const diffDays = Math.floor(diffHours / 24);
+
+            const isID = lang.getLanguage() === 'id';
+
+            if (diffSeconds < 60) {
+                return isID ? 'baru saja' : 'just now';
+            }
+            if (diffMinutes < 60) {
+                return isID ? `${diffMinutes} menit lalu` : `${diffMinutes} minutes ago`;
+            }
+            if (diffHours < 24) {
+                return isID ? `${diffHours} jam lalu` : `${diffHours} hours ago`;
+            }
+            if (diffDays < 7) {
+                return isID ? `${diffDays} hari lalu` : `${diffDays} days ago`;
+            }
+
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return date.toLocaleDateString(isID ? 'id-ID' : 'en-US', options);
+        } catch (e) {
+            return dateString;
+        }
+    };
 
     /**
      * @returns {string}
@@ -163,7 +204,7 @@ export const card = (() => {
         const head = `
         <div class="d-flex justify-content-between align-items-center">
             <p class="text-theme-auto text-truncate m-0 p-0" style="font-size: 0.95rem;">${renderTitle(c)}</p>
-            <small class="text-theme-auto m-0 p-0" style="font-size: 0.75rem;">${c.created_at}</small>
+            <small class="text-theme-auto m-0 p-0" style="font-size: 0.75rem;">${formatTime(c.created_at)}</small>
         </div>
         <hr class="my-1">`;
 
