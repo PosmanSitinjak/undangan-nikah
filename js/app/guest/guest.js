@@ -421,13 +421,22 @@ export const guest = (() => {
         }
 
         window.addEventListener('load', () => {
-            pool.init(pageLoaded, [
-                'image',
-                'video',
-                'audio',
-                'libs',
-                'gif',
-            ]);
+            if (window.caches && !localStorage.getItem('cache_reset_v2')) {
+                window.caches.delete('image').then(() => {
+                    localStorage.setItem('cache_reset_v2', 'true');
+                    pool.init(pageLoaded, ['image', 'video', 'audio', 'libs', 'gif']);
+                }).catch(() => {
+                    pool.init(pageLoaded, ['image', 'video', 'audio', 'libs', 'gif']);
+                });
+            } else {
+                pool.init(pageLoaded, [
+                    'image',
+                    'video',
+                    'audio',
+                    'libs',
+                    'gif',
+                ]);
+            }
         });
 
         return {
