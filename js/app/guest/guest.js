@@ -291,26 +291,45 @@ export const guest = (() => {
      * @returns {Promise<void>}
      */
     const booting = async () => {
-        animateSvg();
-        countDownDate();
-        showGuestName();
-        modalImageClick();
-        normalizeArabicFont();
-        buildGoogleCalendar();
+        try {
+            animateSvg();
+            countDownDate();
+            showGuestName();
+            modalImageClick();
+            normalizeArabicFont();
+            buildGoogleCalendar();
 
-        if (information.has('presence')) {
-            document.getElementById('form-presence').value = information.get('presence') ? '1' : '2';
+            if (information.has('presence')) {
+                document.getElementById('form-presence').value = information.get('presence') ? '1' : '2';
+            }
+
+            if (information.get('info')) {
+                document.getElementById('information')?.remove();
+            }
+        } catch (error) {
+            console.error('Error during booting:', error);
         }
 
-        if (information.get('info')) {
-            document.getElementById('information')?.remove();
+        try {
+            // wait until welcome screen is show.
+            await util.changeOpacity(document.getElementById('welcome'), true);
+
+            // remove loading screen and show welcome screen.
+            await util.changeOpacity(document.getElementById('loading'), false).then((el) => el.remove());
+        } catch (error) {
+            console.error('Error transitioning welcome screen:', error);
+            // Emergency fallback: hide loading screen directly!
+            const loadingEl = document.getElementById('loading');
+            if (loadingEl) {
+                loadingEl.style.display = 'none';
+                loadingEl.remove();
+            }
+            const welcomeEl = document.getElementById('welcome');
+            if (welcomeEl) {
+                welcomeEl.style.opacity = '1';
+                welcomeEl.style.display = 'block';
+            }
         }
-
-        // wait until welcome screen is show.
-        await util.changeOpacity(document.getElementById('welcome'), true);
-
-        // remove loading screen and show welcome screen.
-        await util.changeOpacity(document.getElementById('loading'), false).then((el) => el.remove());
     };
 
     /**
@@ -421,9 +440,11 @@ export const guest = (() => {
         }
 
         window.addEventListener('load', () => {
-            if (window.caches && !localStorage.getItem('cache_reset_v5')) {
-                window.caches.delete('image').then(() => {
-                    localStorage.setItem('cache_reset_v5', 'true');
+            if (window.caches && !localStorage.getItem('cache_reset_v6')) {
+                window.caches.keys().then((keys) => {
+                    return Promise.all(keys.map((k) => window.caches.delete(k)));
+                }).then(() => {
+                    localStorage.setItem('cache_reset_v6', 'true');
                     pool.init(pageLoaded, ['image', 'video', 'audio', 'libs', 'gif']);
                 }).catch(() => {
                     pool.init(pageLoaded, ['image', 'video', 'audio', 'libs', 'gif']);

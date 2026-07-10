@@ -89,7 +89,14 @@ export const util = (() => {
      * @returns {Promise<HTMLElement>}
      */
     const changeOpacity = (el, isUp, step = 0.05) => new Promise((res) => {
+        if (!el) {
+            res(el);
+            return;
+        }
         let op = parseFloat(el.style.opacity);
+        if (isNaN(op)) {
+            op = isUp ? 0 : 1;
+        }
         const target = isUp ? 1 : 0;
 
         const animate = () => {

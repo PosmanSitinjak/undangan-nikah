@@ -117,10 +117,34 @@ export const cacheWrapper = (cacheName) => {
             return null;
         }
 
-        const maxAge = res.headers.get('Cache-Control').match(/max-age=(\d+)/)[1];
-        const expTime = Date.parse(res.headers.get('Date')) + (parseInt(maxAge) * 1000);
+        try {
+            const cacheControl = res.headers.get('Cache-Control');
+            const dateHeader = res.headers.get('Date');
 
-        return Date.now() > expTime ? null : res;
+            if (!cacheControl || !dateHeader) {
+                return null;
+            }
+
+            const match = cacheControl.match(/max-age=(\d+)/);
+            if (!match) {
+                return null;
+            }
+
+            const maxAge = parseInt(match[1], 10);
+            if (isNaN(maxAge)) {
+                return null;
+            }
+
+            const expTime = Date.parse(dateHeader) + (maxAge * 1000);
+            if (isNaN(expTime)) {
+                return null;
+            }
+
+            return Date.now() > expTime ? null : res;
+        } catch (e) {
+            console.error('Error parsing cache headers:', e);
+            return null;
+        }
     });
 
     /**
