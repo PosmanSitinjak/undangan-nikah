@@ -113,3 +113,14 @@ svg {
 .no-gap-bottom {
     margin-bottom: -0.75rem !important;
 }
+
+@media (min-width: 992px) {
+    #desktop-blocker {
+        display: flex !important;
+    }
+}
+@media (max-width: 991.98px) {
+    #desktop-blocker {
+        display: none !important;
+    }
+}
