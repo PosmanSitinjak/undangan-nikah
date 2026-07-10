@@ -9,7 +9,7 @@
 
     <script>
         (function() {
-            var isDesktop = window.innerWidth >= 992 && !('ontouchstart' in window || navigator.maxTouchPoints > 0);
+            var isDesktop = window.innerWidth >= 992;
             if (isDesktop) {
                 document.documentElement.style.overflow = 'hidden';
                 document.addEventListener('DOMContentLoaded', function() {
