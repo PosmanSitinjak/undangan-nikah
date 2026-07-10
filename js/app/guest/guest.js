@@ -440,11 +440,11 @@ export const guest = (() => {
         }
 
         window.addEventListener('load', () => {
-            if (window.caches && !localStorage.getItem('cache_reset_v8')) {
+            if (window.caches && !localStorage.getItem('cache_reset_v9')) {
                 window.caches.keys().then((keys) => {
                     return Promise.all(keys.map((k) => window.caches.delete(k)));
                 }).then(() => {
-                    localStorage.setItem('cache_reset_v8', 'true');
+                    localStorage.setItem('cache_reset_v9', 'true');
                     pool.init(pageLoaded, ['image', 'video', 'audio', 'libs', 'gif']);
                 }).catch(() => {
                     pool.init(pageLoaded, ['image', 'video', 'audio', 'libs', 'gif']);
