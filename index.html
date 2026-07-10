@@ -619,38 +619,7 @@
             </div>
         </div>
     </div>
-    <style>
-        @media (min-width: 992px) {
-            #desktop-blocker {
-                display: flex !important;
-            }
-        }
-        @media (max-width: 991.98px) {
-            #desktop-blocker {
-                display: none !important;
-            }
-        }
-    </style>
-    <!-- Desktop Blocker Overlay -->
-    <div id="desktop-blocker" class="position-fixed inset-0 justify-content-center align-items-center bg-white-black text-center" style="z-index: 9999; display: none; background: radial-gradient(circle, rgba(20,20,20,0.85) 0%, rgba(10,10,10,0.95) 100%); backdrop-filter: blur(10px);">
-        <div class="card border-0 rounded-5 shadow p-4 mx-3" style="max-width: 400px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); color: #fff;">
-            <h2 class="font-esthetic mb-3" style="font-size: 2.5rem; color: #ff8fa3;">Fitrio & Noriega</h2>
-            <p class="mb-4" style="font-size: 0.95rem; line-height: 1.6; opacity: 0.9;">Undangan ini dirancang khusus untuk perangkat smartphone / HP Anda untuk kenyamanan tampilan terbaik.</p>
-            <div class="bg-white p-3 rounded-4 d-inline-block mx-auto mb-3 shadow">
-                <img id="desktop-qr" src="" alt="QR Code" style="width: 180px; height: 180px;">
-            </div>
-            <p class="m-0 text-secondary" style="font-size: 0.8rem;">Pindai QR Code di atas dengan kamera HP Anda untuk membuka undangan pernikahan kami.</p>
-        </div>
-    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var qrImg = document.getElementById('desktop-qr');
-            if (qrImg) {
-                qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(window.location.href);
-            }
-        });
-    </script>
 </body>
 
 </html>
