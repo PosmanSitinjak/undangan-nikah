@@ -8,23 +8,12 @@
     <title>Undangan Pernikahan Fitrio dan Noriega</title>
 
     <script>
-        (function() {
-            var isDesktop = window.innerWidth >= 992;
-            if (isDesktop) {
-                document.documentElement.style.overflow = 'hidden';
-                document.addEventListener('DOMContentLoaded', function() {
-                    document.body.innerHTML = '<div style="position:fixed;inset:0;z-index:99999;display:flex;justify-content:center;align-items:center;background:#111;color:#fff;font-family:sans-serif;text-align:center;padding:2rem;">' +
-                        '<div style="max-width:420px;">' +
-                        '<h1 style="font-size:2.5rem;margin-bottom:1rem;font-family:Sacramento,cursive;">Fitrio &amp; Noriega</h1>' +
-                        '<p style="font-size:1rem;opacity:0.85;line-height:1.7;margin-bottom:2rem;">Undangan ini dirancang khusus untuk dibuka melalui <strong>smartphone / HP</strong>.<br>Silakan buka link undangan ini di HP Anda.</p>' +
-                        '<div style="background:#fff;display:inline-block;padding:12px;border-radius:12px;margin-bottom:1rem;">' +
-                        '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(window.location.href) + '" alt="QR" style="width:200px;height:200px;display:block;">' +
-                        '</div>' +
-                        '<p style="font-size:0.8rem;opacity:0.6;">Scan QR Code di atas dengan kamera HP Anda</p>' +
-                        '</div></div>';
-                });
-            }
-        })();
+        if (window.innerWidth >= 992) {
+            var u = encodeURIComponent(window.location.href);
+            document.open();
+            document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Buka di HP</title></head><body style="margin:0;min-height:100vh;display:flex;justify-content:center;align-items:center;background:#111;color:#fff;font-family:sans-serif;text-align:center;padding:2rem;"><div style="max-width:420px;"><h1 style="font-size:2.2rem;margin-bottom:1rem;">Fitrio &amp; Noriega</h1><p style="font-size:1rem;opacity:0.85;line-height:1.7;margin-bottom:2rem;">Undangan ini dirancang khusus untuk dibuka melalui <strong>smartphone / HP</strong>.<br>Silakan buka link undangan ini di HP Anda.</p><div style="background:#fff;display:inline-block;padding:12px;border-radius:12px;margin-bottom:1rem;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + u + '" alt="QR" style="width:200px;height:200px;display:block;"></div><p style="font-size:0.8rem;opacity:0.6;">Scan QR Code di atas dengan kamera HP Anda</p></div></body></html>');
+            document.close();
+        }
     </script>
 
     <!-- SEO Tag -->

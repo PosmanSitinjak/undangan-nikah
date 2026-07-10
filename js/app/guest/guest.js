@@ -421,9 +421,9 @@ export const guest = (() => {
         }
 
         window.addEventListener('load', () => {
-            if (window.caches && !localStorage.getItem('cache_reset_v4')) {
+            if (window.caches && !localStorage.getItem('cache_reset_v5')) {
                 window.caches.delete('image').then(() => {
-                    localStorage.setItem('cache_reset_v4', 'true');
+                    localStorage.setItem('cache_reset_v5', 'true');
                     pool.init(pageLoaded, ['image', 'video', 'audio', 'libs', 'gif']);
                 }).catch(() => {
                     pool.init(pageLoaded, ['image', 'video', 'audio', 'libs', 'gif']);
